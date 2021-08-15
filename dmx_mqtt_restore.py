@@ -9,8 +9,8 @@ dmx_restore:                                                    # [required: nam
   module: dmx_mqtt_restore                                      # [required: py file name]
   class: DmxMqttRestore                                         # [required: class used from the module]
   topic_prefix: "mydmxtopicprefix"                              # [optional: default "dmx"]
-  include_list: ["light.dmxlight1", "light.dmxlight2"]          # [optional: list: list of dmx light entity_id's]
-  exclude_list: ["light.non_dmxlight1", "light.non_dmxlight2"]  # [optional: list: list of NON dmx light entity_id's]
+  include: ["light.dmxlight1", "light.dmxlight2"]          # [optional: list: list of dmx light entity_id's]
+  exclude: ["light.non_dmxlight1", "light.non_dmxlight2"]  # [optional: list: list of NON dmx light entity_id's]
   
   dont use both include and exclude at same time. 
   Either include your dmx lights or exclude your non dmx lights
@@ -33,7 +33,7 @@ class DmxMqttRestore(hass.Hass):
         else:
             self.prefix = "dmx"
 
-        if "exclude" and "include" in self.args:
+        if "include" and "exclude" in self.args:
             raise Exception("Both 'include' and 'exclude' were used. Only one or the other is allowed")
         elif "include" in self.args:
             self.lights = self.args["include"]
@@ -92,7 +92,7 @@ class DmxMqttRestore(hass.Hass):
         dict = {}
         dict["name"] = data["entity_id"]
         dict["state"] = data["state"]
-        if dict["state"] == "on":
+        if dict["state"] == "on" and "brightness" in data:
             dict["level"] = data["attributes"]["brightness"]
         else:
             dict["level"] = 0
